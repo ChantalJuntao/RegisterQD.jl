@@ -176,8 +176,7 @@ function qd_rigid(fixed, moving, mxshift::VecLike, mxrot::Union{Number,VecLike};
                   initial_tfm=IdentityTransformation(),
                   print_interval=100,
                   kwargs...)
-    #TODO make sure isrotation(initial_tfm.linear) returns true, else throw a warning and an option to terminate? do I still allow the main block to run?
-    if initial_tfm == IdentityTransformation() || isrotation(initial_tfm.linear)
+    if initial_tfm == IdentityTransformation() ||isrotation(initial_tfm.linear)
     else
         @show "WARNING: initial_tfm is not a rigid transformation"
     end

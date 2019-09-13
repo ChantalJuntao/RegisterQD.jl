@@ -170,3 +170,25 @@ function _analyze(f, lower, upper; kwargs...)
     splits = ([[lower[i]; lower[i]+(upper[i]-lower[i])/2; upper[i]] for i=1:length(lower)]...,)
     QuadDIRECT.analyze(f, splits, lower, upper; kwargs...)
 end
+
+
+"""
+    image, SD = rescale(img::AbstractArray{T,N}, [dim1, dim2, dim3])
+
+Restricts images a given number of times in each dimension, and returns the
+newly restricted images and a new SD
+Feature to add this new SD to an old SD pending.
+"""
+function rescale(img::AbstractArray{T,N}, dims::AbstractArray{Int64,1}; initSD=diagm(ones(ndims(img)))) where {T,N}
+    RegisterQD.dimcheck(dims, N)
+    for i = 1:N
+        for j = 1:dims[i]
+            img = restrict(img, i)
+        end
+    end
+    SD = diagm(map(x-> 2^x, dims)) #restrict doesn't always give back the numbers you expect. 
+    #SD = initSD .* SD
+    SD./maximum(SD)
+    return img, SD
+end
+#TODO I should change this so that you can rescale however you like and it returns the correct SD
