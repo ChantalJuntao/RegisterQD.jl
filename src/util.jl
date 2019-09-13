@@ -186,7 +186,7 @@ function rescale(img::AbstractArray{T,N}, dims::AbstractArray{Int64,1}; initSD=d
             img = restrict(img, i)
         end
     end
-    SD = diagm(map(x-> 2^x, dims)) #restrict doesn't always give back the numbers you expect. 
+    SD = diagm(map(x-> 2^x, dims)) #restrict doesn't always give back the numbers you expect.
     #SD = initSD .* SD
     SD./maximum(SD)
     return img, SD
