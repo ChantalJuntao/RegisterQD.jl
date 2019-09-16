@@ -33,17 +33,16 @@ function affine_mm_slow(params, fixed, moving, thresh, SD; initial_tfm=IdentityT
 end
 
 function qd_affine_coarse(fixed, moving, mxshift, linmins, linmaxs;
-                          SD=I,
+                            SD=Matrix(1.0*I,ndims(fixed),ndims(fixed)),
                           initial_tfm=IdentityTransformation(),
                           thresh=0.1*sum(abs2.(fixed[.!(isnan.(fixed))])),
                           minwidth=default_lin_minwidths(moving),
-                          maxevals=5e4,
                           kwargs...)
     f(x) = affine_mm_fast(x, mxshift, fixed, moving, thresh, SD; initial_tfm=initial_tfm)
     upper = linmaxs
     lower = linmins
     root, x0 = _analyze(f, lower, upper;
-                        minwidth=minwidth, print_interval=100, maxevals=maxevals, kwargs..., atol=0, rtol=1e-3)
+                        minwidth=minwidth, print_interval=100, maxevals=5e4, kwargs..., atol=0, rtol=1e-3)
     box = minimum(root)
     params = position(box, x0)
     tfmcoarse0 = linmap(params, moving, initial_tfm)
@@ -53,11 +52,10 @@ function qd_affine_coarse(fixed, moving, mxshift, linmins, linmaxs;
 end
 
 function qd_affine_fine(fixed, moving, linmins, linmaxs;
-                        SD=I,
+                        SD=Matrix(1.0*I,ndims(fixed),ndims(fixed)),
                         initial_tfm=IdentityTransformation(),
                         thresh=0.1*sum(abs2.(fixed[.!(isnan.(fixed))])),
                         minwidth_mat=default_lin_minwidths(fixed)./10,
-                        maxevals=5e4,
                         kwargs...)
     f(x) = affine_mm_slow(x, fixed, moving, thresh, SD; initial_tfm=initial_tfm)
     upper_shft = fill(2.0, ndims(fixed))
@@ -66,7 +64,7 @@ function qd_affine_fine(fixed, moving, linmins, linmaxs;
     minwidth_shfts = fill(0.01, ndims(fixed))
     minwidth = vcat(minwidth_shfts, minwidth_mat)
     root, x0 = _analyze(f, lower, upper;
-                        minwidth=minwidth, print_interval=100, maxevals=maxevals, kwargs...)
+                        minwidth=minwidth, print_interval=100, maxevals=5e4, kwargs...)
     box = minimum(root)
     params = position(box, x0)
     tfmfine = aff(params, moving, initial_tfm)
@@ -109,7 +107,7 @@ is a vector encoding the spacing along all axes of the image. `thresh` enforces 
 overlap between the two images; with non-zero `thresh`, it is not permissible to "align" the images by shifting one entirely out of the way of the other.
 """
 function qd_affine(fixed, moving, mxshift, linmins, linmaxs;
-                   SD=I,
+                    SD=Matrix(1.0*I,ndims(fixed),ndims(fixed)),
                    thresh=0.5*sum(abs2.(fixed[.!(isnan.(fixed))])),
                    initial_tfm=IdentityTransformation(),
                    print_interval=100,
@@ -130,7 +128,7 @@ function qd_affine(fixed, moving, mxshift, linmins, linmaxs;
 end
 
 function qd_affine(fixed, moving, mxshift;
-                   SD=I,
+                    SD=Matrix(1.0*I,ndims(fixed),ndims(fixed)),
                    thresh=0.5*sum(abs2.(fixed[.!(isnan.(fixed))])),
                    initial_tfm=IdentityTransformation(),
                    dmax = 0.05, ndmax = 0.05,
