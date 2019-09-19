@@ -1,9 +1,7 @@
 using StaticArrays, Interpolations, LinearAlgebra
 using Images, CoordinateTransformations, Rotations
 using RegisterQD
-using Random
 
-Random.seed!(495)
 g = 0.2:0.2:1.2
 gradcube = g .* reshape(g, 1, 6) .* reshape(g, 1, 1, 6)
 gradcube[1,4,2] = 0
@@ -88,7 +86,7 @@ end
     # tests with equal spaces produces real rotations
     tformtest0, mm0= qd_rigid(testimage2, testimage1, mxshift, mxrot2; print_interval=typemax(Int))
 
-    @test mm0 < 1e-8
+    @test mm0 < 1e-7
     @test isapprox(tformtest0, mytform, atol = 0.1)
     @test isrotation(tformtest0.linear)
 
